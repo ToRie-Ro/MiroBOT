@@ -5,7 +5,7 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: npm install && npm run db:generate && npm run build --workspace=apps/dashboard
+    buildCommand: npm install --include=dev && npm run db:generate && npm run build --workspace=apps/dashboard
     startCommand: node apps/dashboard/.next/standalone/server.js
     envVars:
       - key: NODE_ENV
@@ -38,7 +38,7 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: npm install && npm run db:generate && npm run build --workspace=apps/bot
+    buildCommand: npm install --include=dev && npm run db:generate && npm run build --workspace=apps/bot
     startCommand: node apps/bot/dist/index.js
     envVars:
       - key: NODE_ENV
