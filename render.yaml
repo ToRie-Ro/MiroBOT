@@ -1,11 +1,12 @@
 services:
+  # ── Dashboard (Next.js web app) ───────────────────────────────────────────
   - type: web
     name: chiro-dashboard
     env: node
     region: singapore
     plan: free
-    buildCommand: npm install && npx turbo run build --filter=@chiro/dashboard
-    startCommand: npm run start --workspace apps/dashboard
+    buildCommand: npm ci && npm run db:generate && npm run build --workspace=apps/dashboard
+    startCommand: node apps/dashboard/.next/standalone/server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -28,14 +29,17 @@ services:
         sync: false
       - key: APP_URL
         sync: false
+      - key: BOT_OWNER_IDS
+        sync: false
 
+  # ── Bot (Discord.js worker, exposed as web for free tier) ─────────────────
   - type: web
     name: chiro-bot
     env: node
     region: singapore
     plan: free
-    buildCommand: npm install && npx turbo run build --filter=@chiro/bot
-    startCommand: npm run start --workspace apps/bot
+    buildCommand: npm ci && npm run db:generate && npm run build --workspace=apps/bot
+    startCommand: node apps/bot/dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -50,15 +54,21 @@ services:
           property: connectionString
       - key: DISCORD_TOKEN
         sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
       - key: BOT_OWNER_IDS
         sync: false
+      - key: APP_URL
+        sync: false
 
+  # ── Redis ─────────────────────────────────────────────────────────────────
   - type: redis
     name: chiro-redis
     region: singapore
     ipAllowList: []
     plan: free
 
+# ── PostgreSQL ────────────────────────────────────────────────────────────
 databases:
   - name: chiro-db
     databaseName: chiro

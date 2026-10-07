@@ -1,43 +1,55 @@
 import 'dotenv/config';
-import { REST, Routes } from 'discord.js';
-import { logger } from './utils/logger';
 import * as fs from 'fs';
 import * as path from 'path';
+import { REST, Routes, RESTPostAPIChatInputApplicationCommandsJSONBody } from 'discord.js';
+import { logger } from './utils/logger';
 
-const commands = [];
+const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [];
 const commandsPath = path.join(__dirname, 'commands');
 
 if (fs.existsSync(commandsPath)) {
   const commandFolders = fs.readdirSync(commandsPath);
   for (const folder of commandFolders) {
     const commandsFolder = path.join(commandsPath, folder);
-    const commandFiles = fs.readdirSync(commandsFolder).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
-    
+    if (!fs.statSync(commandsFolder).isDirectory()) continue;
+    const commandFiles = fs
+      .readdirSync(commandsFolder)
+      .filter((file) => file.endsWith('.js'));
+
     for (const file of commandFiles) {
       const filePath = path.join(commandsFolder, file);
-      const command = require(filePath).default || require(filePath);
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const command = require(filePath).default ?? require(filePath);
       if ('data' in command && 'execute' in command) {
         commands.push(command.data.toJSON());
       } else {
-        logger.warn(`The command at ${filePath} is missing a required "data" or "execute" property.`);
+        logger.warn(
+          `Command at ${filePath} is missing "data" or "execute" property.`,
+        );
       }
     }
   }
 }
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN!);
+const token = process.env.DISCORD_TOKEN;
+const clientId = process.env.DISCORD_CLIENT_ID;
+
+if (!token || !clientId) {
+  logger.error('DISCORD_TOKEN and DISCORD_CLIENT_ID must be set.');
+  process.exit(1);
+}
+
+const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
   try {
-    logger.info(`Started refreshing ${commands.length} application (/) commands.`);
-
-    const data = await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID!),
-      { body: commands },
-    ) as any[];
-
-    logger.info(`Successfully reloaded ${data.length} application (/) commands.`);
+    logger.info(`Registering ${commands.length} slash command(s)...`);
+    const data = (await rest.put(Routes.applicationCommands(clientId), {
+      body: commands,
+    })) as unknown[];
+    logger.info(`Successfully registered ${data.length} slash command(s).`);
   } catch (error) {
-    logger.error(error);
+    logger.error(error, 'Failed to register commands');
+    process.exit(1);
   }
 })();
