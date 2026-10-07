@@ -77,6 +77,8 @@ model Guild {
   userXP           UserXP[]
   customCommands   CustomCommand[]
   ticketSettings   TicketSettings?
+  tickets          Ticket[]
+  giveawaySettings GiveawaySettings?
   giveaways        Giveaway[]
   embedTemplates   EmbedTemplate[]
   tempVoiceSettings TempVoiceSettings?
