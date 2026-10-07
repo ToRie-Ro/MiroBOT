@@ -85,8 +85,23 @@ http
     logger.info(`Health-check server listening on port ${port}`);
   });
 
-// ── Connect ────────────────────────────────────────────────────────────────
-client.login(process.env.DISCORD_TOKEN).catch((err) => {
-  logger.error(err, 'Failed to login to Discord');
-  process.exit(1);
-});
+// ── Connect with auto-retry ───────────────────────────────────────────────
+async function connectToDiscord() {
+  const token = process.env.DISCORD_TOKEN;
+  if (!token) {
+    logger.warn('DISCORD_TOKEN is not configured in environment variables. Waiting 20s before checking again...');
+    setTimeout(connectToDiscord, 20000);
+    return;
+  }
+
+  try {
+    logger.info('Attempting to connect to Discord Gateway...');
+    await client.login(token);
+    logger.info('Successfully authenticated and connected to Discord!');
+  } catch (err: any) {
+    logger.error(err, 'Failed to login to Discord. Please verify DISCORD_TOKEN and Privileged Gateway Intents (Message Content, Server Members) in Discord Developer Portal.');
+    setTimeout(connectToDiscord, 30000);
+  }
+}
+
+connectToDiscord();

@@ -19,6 +19,8 @@ services:
           type: redis
           name: chiro-redis
           property: connectionString
+      - key: DISCORD_TOKEN
+        sync: false
       - key: DISCORD_CLIENT_ID
         sync: false
       - key: DISCORD_CLIENT_SECRET

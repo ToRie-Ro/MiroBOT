@@ -4,15 +4,12 @@ import { fetchUserGuilds } from '../../../lib/discord-api';
 import { getCache, setCache } from '../../../lib/redis';
 import { rateLimit } from '../../../lib/rate-limit';
 
-// Mock DB call for testing without actual DB setup
-const isBotInGuild = async (guildId: string) => true; 
-
 export async function GET(req: Request) {
   try {
     const session = await getAuthSession();
     
     // @ts-ignore
-    const { success } = await rateLimit(`guilds_get_${session.user.id}`, 10, 60);
+    const { success } = await rateLimit(`guilds_get_${session.user.id}`, 20, 60);
     if (!success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
 
     // @ts-ignore
@@ -22,14 +19,38 @@ export async function GET(req: Request) {
     if (!guilds) {
       // @ts-ignore
       guilds = await fetchUserGuilds(session.accessToken);
-      await setCache(cacheKey, guilds, 300);
+      await setCache(cacheKey, guilds, 60);
     }
 
-    const managedGuilds = guilds.filter((g: any) => (g.permissions & 0x20) === 0x20);
-    
+    if (!Array.isArray(guilds)) {
+      return NextResponse.json([]);
+    }
+
+    // Filter to guilds where user has MANAGE_GUILD (0x20) or ADMINISTRATOR (0x8) or is owner
+    const managedGuilds = guilds.filter((g: any) => {
+      try {
+        const perms = BigInt(g.permissions || '0');
+        const MANAGE_GUILD = BigInt(0x20);
+        const ADMINISTRATOR = BigInt(0x8);
+        return g.owner || (perms & MANAGE_GUILD) === MANAGE_GUILD || (perms & ADMINISTRATOR) === ADMINISTRATOR;
+      } catch {
+        return !!g.owner;
+      }
+    });
+
+    const botToken = process.env.DISCORD_TOKEN || process.env.DISCORD_BOT_TOKEN;
+
     const guildsWithBot = await Promise.all(
       managedGuilds.map(async (g: any) => {
-        const botPresent = await isBotInGuild(g.id);
+        let botPresent = false;
+        if (botToken) {
+          try {
+            const res = await fetch(`https://discord.com/api/v10/guilds/${g.id}`, {
+              headers: { Authorization: `Bot ${botToken}` },
+            });
+            botPresent = res.ok;
+          } catch {}
+        }
         return { ...g, botPresent };
       })
     );

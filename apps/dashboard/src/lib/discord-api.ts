@@ -1,5 +1,5 @@
 const DISCORD_API_URL = 'https://discord.com/api/v10';
-const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+const BOT_TOKEN = process.env.DISCORD_TOKEN || process.env.DISCORD_BOT_TOKEN;
 
 export async function fetchUserGuilds(accessToken: string) {
   const res = await fetch(`${DISCORD_API_URL}/users/@me/guilds`, {
