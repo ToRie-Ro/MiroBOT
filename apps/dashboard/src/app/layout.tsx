@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { Providers } from '@/components/providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -13,7 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} bg-[#0f0f17] text-white min-h-screen`}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Toaster theme="dark" position="bottom-right" />
       </body>
     </html>

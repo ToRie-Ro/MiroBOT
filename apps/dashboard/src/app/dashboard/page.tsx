@@ -13,8 +13,12 @@ interface Guild {
   botPresent?: boolean;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default function DashboardIndex() {
-  const { data: session, status } = useSession();
+  const sessionResult = useSession();
+  const session = sessionResult?.data;
+  const status = sessionResult?.status ?? 'unauthenticated';
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

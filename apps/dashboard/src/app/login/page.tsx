@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const clientId = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID || '';
   const botInviteUrl = clientId
