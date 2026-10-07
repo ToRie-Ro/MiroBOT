@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node -e \"const fs=require('fs'); fs.mkdirSync('.next/standalone', {recursive:true}); fs.copyFileSync('start-wrapper.js', '.next/standalone/server.js'); console.log('Created .next/standalone/server.js fallback');\"",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
