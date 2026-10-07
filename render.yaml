@@ -2,6 +2,7 @@ services:
   - type: web
     name: chiro-dashboard
     env: node
+    region: singapore
     buildCommand: npm install && npx turbo run build --filter=@chiro/dashboard
     startCommand: npm run start --workspace apps/dashboard
     envVars:
@@ -30,6 +31,7 @@ services:
   - type: worker
     name: chiro-bot
     env: node
+    region: singapore
     buildCommand: npm install && npx turbo run build --filter=@chiro/bot
     startCommand: npm run start --workspace apps/bot
     envVars:
@@ -51,6 +53,7 @@ services:
 
   - type: redis
     name: chiro-redis
+    region: singapore
     ipAllowList: []
     plan: free
 
@@ -58,4 +61,5 @@ databases:
   - name: chiro-db
     databaseName: chiro
     user: chiro_user
+    region: singapore
     plan: free
