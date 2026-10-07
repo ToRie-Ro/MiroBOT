@@ -3,6 +3,7 @@ services:
     name: chiro-dashboard
     env: node
     region: singapore
+    plan: free
     buildCommand: npm install && npx turbo run build --filter=@chiro/dashboard
     startCommand: npm run start --workspace apps/dashboard
     envVars:
@@ -28,10 +29,11 @@ services:
       - key: APP_URL
         sync: false
 
-  - type: worker
+  - type: web
     name: chiro-bot
     env: node
     region: singapore
+    plan: free
     buildCommand: npm install && npx turbo run build --filter=@chiro/bot
     startCommand: npm run start --workspace apps/bot
     envVars:

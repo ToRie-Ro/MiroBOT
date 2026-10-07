@@ -63,3 +63,13 @@ process.on('SIGTERM', shutdown);
 client.login(process.env.DISCORD_TOKEN).catch(err => {
   logger.error(err, 'Failed to login');
 });
+
+// Dummy HTTP server for Render free tier
+import http from 'http';
+const port = process.env.PORT || 8080;
+http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('Bot is running!');
+}).listen(port, () => {
+  logger.info(`Dummy web server listening on port ${port} for Render Free Tier`);
+});
