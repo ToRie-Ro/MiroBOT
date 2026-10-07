@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@chiro/database';
-import { redis } from '../../lib/redis';
+import { redis } from '@/lib/redis';
 
 export async function GET() {
   try {
