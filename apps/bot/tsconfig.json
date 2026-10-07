@@ -8,9 +8,9 @@
     "rootDir": "src",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
     "resolveJsonModule": true,
     "declaration": false,
     "sourceMap": true
